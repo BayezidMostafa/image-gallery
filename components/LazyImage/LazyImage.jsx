@@ -3,9 +3,11 @@ import React, { useState, useEffect, useRef } from "react";
 const LazyImage = ({ src, alt, placeholder, style }) => {
   const [imageSrc, setImageSrc] = useState(placeholder);
   const [imageRef, setImageRef] = useState(null);
+  const [loaded, setLoaded] = useState(false); // New state to track loading
 
   const onLoad = () => {
     setImageSrc(src);
+    setLoaded(true); // Set loaded to true when the image is loaded
   };
 
   useEffect(() => {
@@ -17,11 +19,7 @@ const LazyImage = ({ src, alt, placeholder, style }) => {
         observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
-              // When the image is visible in the viewport + rootMargin, load the image.
-              if (
-                !didCancel &&
-                (entry.intersectionRatio > 0 || entry.isIntersecting)
-              ) {
+              if (!didCancel && (entry.intersectionRatio > 0 || entry.isIntersecting)) {
                 setImageSrc(src);
                 observer.unobserve(imageRef);
               }
@@ -40,7 +38,6 @@ const LazyImage = ({ src, alt, placeholder, style }) => {
     }
     return () => {
       didCancel = true;
-      // Make sure to cleanup the observer if the component unmounts
       if (observer && observer.unobserve) {
         observer.unobserve(imageRef);
       }
@@ -53,9 +50,12 @@ const LazyImage = ({ src, alt, placeholder, style }) => {
       ref={setImageRef}
       src={imageSrc}
       alt={alt}
-      style={style}
-      onError={(e) => (e.target.src = placeholder)}
-      onLoad={() => imageSrc === placeholder && onLoad()}
+      style={{ ...style, opacity: loaded ? 1 : 0.5, transition: 'opacity 0.5s ease-in-out' }}
+      onError={(e) => {
+        setLoaded(false);
+        e.target.src = placeholder;
+      }}
+      onLoad={onLoad}
     />
   );
 };

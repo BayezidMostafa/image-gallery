@@ -18,8 +18,8 @@ const Header = () => {
 
   return (
     <div>
-      <h1>Properties in Mumbai</h1>
-      <div className="grid grid-cols-3 gap-4">
+      <h1 className="text-center py-5 text-2xl">Properties in Mumbai</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {data.properties.map((property, index) => (
           <div key={index} className="w-52 h-52 relative">
             <LazyImage
